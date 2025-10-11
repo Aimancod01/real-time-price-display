@@ -1,6 +1,7 @@
 import { useEffect, useState, type FC } from "react";
 import Spinner from "./ui/loader/spinner";
-import type { Ticker } from "../types";
+import type { Ticker, WebSocketTicker } from "../types";
+import { io } from "socket.io-client";
 
 const PriceDisplay: FC = () => {
   const [price, setPrice] = useState<string | null>(null);
@@ -25,8 +26,26 @@ const PriceDisplay: FC = () => {
   useEffect(() => {
     fetchInitial();
   }, []);
+
+  useEffect(() => {
+    const socket = io("wss://stream.binance.com:9443/ws/btcusdt@ticker.", {
+      transports: ["websocket"],
+      reconnection: true,
+    });
+    socket.on("connect", () => {
+      console.log("Socket Connected");
+    });
+    socket.on("onmessage", (data: WebSocketTicker) => {
+      if (data && data.c) {
+        setPrice(data.c);
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   return (
-    <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center justify-center w-full max-w-sm mx-auto">
+    <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center justify-center  ">
       <h2 className="text-xl font-semibold text-gray-800 mb-2">
         Initial Last Price
       </h2>
@@ -35,7 +54,9 @@ const PriceDisplay: FC = () => {
       ) : error ? (
         <p>{error}</p>
       ) : (
-        <p className="text-xl font-bold text-orange-500">BTC/USDT: ${price}</p>
+        <p className="text-md md:text-xl font-bold text-orange-500">
+          BTC/USDT: ${price}
+        </p>
       )}
     </div>
   );
