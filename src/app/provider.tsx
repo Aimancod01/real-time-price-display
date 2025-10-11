@@ -6,7 +6,13 @@ import Spinner from "../components/ui/loader/spinner";
 
 export const AppProvider: FC<ChildrenType> = ({ children }) => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <Spinner />
+        </div>
+      }
+    >
       <ErrorBoundary FallbackComponent={MainErrorFallback}>
         {children}
       </ErrorBoundary>

@@ -9,4 +9,9 @@ interface Ticker {
   lastPrice: string;
 }
 
-export type { ChildrenType, Ticker };
+interface WebSocketTicker {
+  s: string;
+  c: string;
+}
+
+export type { ChildrenType, Ticker, WebSocketTicker };
